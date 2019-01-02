@@ -39,7 +39,7 @@ defmodule Turbo.Ecto do
     ```elixir
     iex> params = %{"q" => %{"product.name_or_name_like" => "elixir"}}
     iex> Turbo.Ecto.turboq(Turbo.Ecto.Variant, params)
-    #Ecto.Query<from v in Turbo.Ecto.Variant, join: p in assoc(v, :product), where: like(p.name, \"%elixir%\") or like(v.name, \"%elixir%\"), limit: 10, offset: 0>
+    #Ecto.Query<from v in Turbo.Ecto.Variant, left_join: p in assoc(v, :product), where: like(p.name, \"%elixir%\") or like(v.name, \"%elixir%\"), limit: 10, offset: 0>
     ```
 
   """

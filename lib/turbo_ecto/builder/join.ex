@@ -11,7 +11,7 @@ defmodule Turbo.Ecto.Builder.Join do
       iex> query = Turbo.Ecto.Variant
       iex> relations = [:product, :prototypes]
       iex> Turbo.Ecto.Builder.Join.build(query, relations)
-      #Ecto.Query<from v in Turbo.Ecto.Variant, join: p0 in assoc(v, :product), join: p1 in assoc(v, :prototypes)>
+      #Ecto.Query<from v in Turbo.Ecto.Variant, left_join: p0 in assoc(v, :product), left_join: p1 in assoc(v, :prototypes)>
 
   """
   @spec build(Macro.t(), [Macro.t()]) :: Macro.t()
@@ -24,7 +24,7 @@ defmodule Turbo.Ecto.Builder.Join do
     query
     |> Macro.escape()
     |> Join.build(
-      :inner,
+      :left,
       [{:query, [], Elixir}],
       expr(relation),
       nil,

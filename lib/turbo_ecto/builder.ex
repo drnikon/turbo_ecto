@@ -68,13 +68,13 @@ defmodule Turbo.Ecto.Builder do
 
       iex> params = %{"q" => %{"category.name_like" => "elixir"}}
       iex> Turbo.Ecto.Builder.run(Turbo.Ecto.Product, params)
-      #Ecto.Query<from p in Turbo.Ecto.Product, join: c in assoc(p, :category), where: like(c.name, \"%elixir%\"), limit: 10, offset: 0>
+      #Ecto.Query<from p in Turbo.Ecto.Product, left_join: c in assoc(p, :category), where: like(c.name, \"%elixir%\"), limit: 10, offset: 0>
 
   when use `and` && `or` && `assoc` condition
 
       iex> params = %{"q" => %{"category.name_or_name_and_body_like" => "elixir"}}
       iex> Turbo.Ecto.Builder.run(Turbo.Ecto.Product, params)
-      #Ecto.Query<from p in Turbo.Ecto.Product, join: c in assoc(p, :category), where: like(p.body, \"%elixir%\") or (like(c.name, \"%elixir%\") or like(p.name, \"%elixir%\")), limit: 10, offset: 0>
+      #Ecto.Query<from p in Turbo.Ecto.Product, left_join: c in assoc(p, :category), where: like(p.body, \"%elixir%\") or (like(c.name, \"%elixir%\") or like(p.name, \"%elixir%\")), limit: 10, offset: 0>
 
   """
   @spec run(Ecto.Query.t(), Map.t()) :: Ecto.Query.t()
