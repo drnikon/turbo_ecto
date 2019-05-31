@@ -3,6 +3,7 @@ defmodule Turbo.Ecto.Builder do
 
   alias Turbo.Ecto.Builder.{Join, Where, OrderBy, LimitOffset}
   alias Turbo.Ecto.Hooks.{Search, Sort, Paginate}
+  alias Turbo.Ecto.Utils
 
   @doc """
   Builds a search `Ecto.Query.t` on top of a given `Ecto.Query.t` variable
@@ -12,7 +13,7 @@ defmodule Turbo.Ecto.Builder do
 
   When search_type is `:like`
 
-      iex> params = %{"q" => %{"name_like" => "elixir"}}
+      iex> params = %{"q" => %{"name_like" => "aa"}}
       iex> Turbo.Ecto.Builder.run(Turbo.Ecto.Product, params)
       #Ecto.Query<from p in Turbo.Ecto.Product, where: like(p.name, \"%elixir%\"), limit: 10, offset: 0>
 
@@ -66,13 +67,13 @@ defmodule Turbo.Ecto.Builder do
 
   when use `assoc`
 
-      iex> params = %{"q" => %{"category.name_like" => "elixir"}}
+      iex> params = %{"q" => %{"category_name_like" => "elixir"}}
       iex> Turbo.Ecto.Builder.run(Turbo.Ecto.Product, params)
       #Ecto.Query<from p in Turbo.Ecto.Product, left_join: c in assoc(p, :category), where: like(c.name, \"%elixir%\"), limit: 10, offset: 0>
 
   when use `and` && `or` && `assoc` condition
 
-      iex> params = %{"q" => %{"category.name_or_name_and_body_like" => "elixir"}}
+      iex> params = %{"q" => %{"category_name_or_name_and_body_like" => "elixir"}}
       iex> Turbo.Ecto.Builder.run(Turbo.Ecto.Product, params)
       #Ecto.Query<from p in Turbo.Ecto.Product, left_join: c in assoc(p, :category), where: like(p.body, \"%elixir%\") or (like(c.name, \"%elixir%\") or like(p.name, \"%elixir%\")), limit: 10, offset: 0>
 
@@ -80,7 +81,7 @@ defmodule Turbo.Ecto.Builder do
   @spec run(Ecto.Query.t(), Map.t()) :: Ecto.Query.t()
   def run(queryable, params) do
     schema = extract_schema(queryable)
-    params = stringify_keys(params)
+    params = Utils.stringify_keys(params)
 
     with {:ok, %Search{} = searches} <- Search.run(schema, params),
          {:ok, sorts} <- Sort.run(schema, params),
@@ -94,6 +95,8 @@ defmodule Turbo.Ecto.Builder do
       |> order_by(sorts, binding)
       |> limit(limit, binding)
       |> offset(offset, binding)
+    else
+      {:error, _} -> raise "Expected `params`, got #{inspect(params)}"
     end
   end
 
@@ -142,16 +145,4 @@ defmodule Turbo.Ecto.Builder do
   def extract_schema(%{from: %{source: %{query: subquery}}}), do: extract_schema(subquery)
   def extract_schema(%{from: %{source: {_, schema}}}), do: schema
   def extract_schema(schema), do: schema
-
-  defp stringify_keys(map = %{}) do
-    Enum.into(map, %{}, fn {k, v} -> {to_string(k), stringify_keys(v)} end)
-  end
-
-  defp stringify_keys([head | rest]) do
-    [stringify_keys(head) | stringify_keys(rest)]
-  end
-
-  defp stringify_keys(not_a_map) do
-    not_a_map
-  end
 end

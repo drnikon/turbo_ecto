@@ -1,7 +1,7 @@
 defmodule Turbo.Ecto.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.4.1"
   @github "https://github.com/zven21/turbo_ecto"
 
   def project do
@@ -58,7 +58,13 @@ defmodule Turbo.Ecto.MixProject do
 
   defp aliases do
     [
-      test: ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate --quiet", "test", "credo --strict"]
+      test: [
+        "ecto.drop --quiet",
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "test",
+        "credo --strict"
+      ]
     ]
   end
 end

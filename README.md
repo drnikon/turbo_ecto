@@ -14,6 +14,10 @@ Phoenix support `turbo_html`, check [this](https://github.com/zven21/turbo_html)
 * [Examples](#examples)
 * [Search Matchers](#search-matchers)
 * [Features](#features)
+* [Demo](#demo)
+* [Contributing](#contributing)
+* [Make a pull request](#make-a-pull-request)
+* [License](#license)
 * [Credits](#credits)
 
 ## Getting started
@@ -23,18 +27,20 @@ Phoenix support `turbo_html`, check [this](https://github.com/zven21/turbo_html)
 ```elixir
 def deps do
   [
-    {:turbo_ecto, "~> 0.1.7"}
+    {:turbo_ecto, "~> 0.4.1"}
   ]
 end
 ```
 
-* Add the Repo of your app and the desired per_page to the `turbo_ecto` configuration in config.exs:
+* Add the Repo of your app and the desired per_page to the `turbo_ecto` configuration in `config.exs`:
 
 ```elixir
 config :turbo_ecto, Turbo.Ecto,
   repo: MyApp.Repo,
   per_page: 10
 ```
+
+You can also define other configurations with `entry_name` and `pagenate_name` in `config.exs`.
 
 ## Examples
 
@@ -56,16 +62,11 @@ config :turbo_ecto, Turbo.Ecto,
 
 ```elixir
 
-  iex> params = %{"q" => %{"name_and_category.name_like" => "elixir"}, "s" => "inserted_at+asc", "per_page" => 20}
-
-  iex> Turbo.Ecto.turboq(Turbo.Ecto.Product, params)
-  #Ecto.Query<from p in Turbo.Ecto.Product, join: c in assoc(p, :category),
-  where: like(p.name, "%elixir%") and like(c.name, "%elixir%"),
-  order_by: [asc: p.inserted_at], limit: 20, offset: 0>
+  iex> params = %{"q" => %{"name_and_category_name_like" => "elixir"}, "s" => "inserted_at+asc", "per_page" => 20}
 
   iex> Turbo.Ecto.turbo(Turbo.Ecto.Product, params)
   %{
-    datas: [%Product{}],
+    datas: [%Turbo.Ecto.Product{}],
     paginate: %{
       current_page: 10,
       next_page: 11,
@@ -74,6 +75,13 @@ config :turbo_ecto, Turbo.Ecto,
       total_count: 100,
       total_pages: 20
     }
+  }
+
+  iex> params2 = %{"filter" => %{"name_like" => "elixir"}, "sort" => "inserted_at+asc"}}
+  iex> Turbo.Ecto.turbo(Turbo.Ecto.Product, params2, [entry_name: "entries"])
+  %{
+    entries: [%Turbo.Ecto.Product{}],
+    paginate: %{}
   }
 
 ```
@@ -99,6 +107,62 @@ List of all possible search_types
 | `*_ilike` | Contains any of | Y | (SQL: `col ILIKE '%value%'`) |
 | `*_true` | is true or false | Y | (SQL: `col is true or col is false`) |
 | `*_between`| begin < between < end | Y | e.g. `q[price_between][]=100&q[price_between][]=200` (SQL: `100 <= price <= 200`) |
+
+
+## Demo
+
+The dummy app shows a simple turbo_ecto example.
+
+Clone the repository.
+
+```bash
+https://github.com/zven21/turbo_ecto.git
+```
+
+Change directory
+
+```bash
+$ cd dummy
+```
+
+Run mix
+
+```bash
+$ mix deps.get && yarn --cwd=assets
+```
+
+Preparing database
+
+```bash
+$ mix ecto.setup
+```
+
+Start the Phoenix server
+
+```bash
+$ ./script/server
+```
+
+Open your browser, and visit `http://localhost:4000`
+
+## Contributing
+
+Bug report or pull request are welcome.
+
+### Make a pull request
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+Please write unit test with your code if necessary.
+
+## License
+
+The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+
 
 ## Credits
 
